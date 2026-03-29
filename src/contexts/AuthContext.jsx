@@ -94,7 +94,9 @@ export function AuthProvider({ children }) {
     const memberDoc = await getDoc(doc(db, 'classes', classId, 'members', userId));
     if (memberDoc.exists()) {
       setUserProfile(memberDoc.data());
+      return memberDoc.data();
     }
+    return null;
   }
 
   useEffect(() => {

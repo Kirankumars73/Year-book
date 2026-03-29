@@ -28,7 +28,7 @@ export default function JoinClassPage() {
   const [photoPreview, setPhotoPreview] = useState(null);
   const fileInputRef = useRef();
 
-  const { currentUser, signup, login, createClass, joinClass, saveProfile } = useAuth();
+  const { currentUser, signup, login, createClass, joinClass, saveProfile, loadUserProfile } = useAuth();
   const navigate = useNavigate();
 
   function handlePhotoSelect(e) {
@@ -45,12 +45,25 @@ export default function JoinClassPage() {
     setError('');
     setLoading(true);
     try {
+      let user;
       if (authMode === 'signup') {
-        await signup(email, password, name);
+        user = await signup(email, password, name);
       } else {
-        await login(email, password);
+        const cred = await login(email, password);
+        user = cred.user;
       }
-      setMode(pendingClassId ? 'profile' : 'join');
+
+      if (pendingClassId) {
+        const profile = await loadUserProfile(pendingClassId, user.uid);
+        if (profile) {
+          localStorage.setItem('yb_classId', pendingClassId);
+          navigate('/yearbook');
+          return;
+        }
+        setMode('profile');
+      } else {
+        setMode('join');
+      }
     } catch (err) {
       setError(err.message);
     }
@@ -68,6 +81,12 @@ export default function JoinClassPage() {
       if (!currentUser) {
         setMode('auth');
       } else {
+        const profile = await loadUserProfile(classData.id, currentUser.uid);
+        if (profile) {
+          localStorage.setItem('yb_classId', classData.id);
+          navigate('/yearbook');
+          return;
+        }
         setMode('profile');
       }
     } catch (err) {
