@@ -1,0 +1,121 @@
+.profile-layout {
+  min-height: 100vh;
+  padding-bottom: var(--space-4xl);
+}
+
+.profile-back {
+  margin-bottom: var(--space-xl);
+}
+
+.profile-card {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: var(--space-3xl) var(--space-2xl);
+  text-align: center;
+}
+
+.profile-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-xl);
+}
+
+.profile-avatar-wrapper {
+  position: relative;
+  margin-bottom: var(--space-md);
+}
+
+.profile-avatar-ring {
+  position: absolute;
+  inset: -6px;
+  border-radius: var(--radius-xl);
+  border: 2px solid var(--accent-gold-dim);
+  animation: pulse-glow 4s ease-in-out infinite;
+}
+
+.profile-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  position: relative;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+}
+
+.profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-placeholder.large {
+  font-size: 3rem;
+}
+
+.profile-name {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.profile-roll {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-family: 'Courier New', monospace;
+}
+
+.profile-quote {
+  padding: var(--space-lg);
+  margin: var(--space-xl) 0;
+  position: relative;
+  text-align: left;
+}
+
+.profile-quote p {
+  font-style: italic;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  font-size: 0.95rem;
+}
+
+.quote-mark {
+  font-family: var(--font-serif);
+  font-size: 3rem;
+  color: var(--accent-gold);
+  opacity: 0.4;
+  position: absolute;
+  top: 4px;
+  left: 12px;
+  line-height: 1;
+}
+
+.profile-bio {
+  text-align: left;
+  margin: var(--space-xl) 0;
+}
+
+.profile-section-title {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-sm);
+}
+
+.profile-bio p {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+.profile-msg-btn {
+  margin-top: var(--space-xl);
+}
+
+@media (max-width: 768px) {
+  .profile-layout {
+    padding-bottom: 100px;
+  }
+}
