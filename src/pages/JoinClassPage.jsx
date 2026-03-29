@@ -28,7 +28,7 @@ export default function JoinClassPage() {
   const [photoPreview, setPhotoPreview] = useState(null);
   const fileInputRef = useRef();
 
-  const { currentUser, signup, login, createClass, joinClass, saveProfile, loadUserProfile } = useAuth();
+  const { currentUser, signup, login, logout, createClass, joinClass, saveProfile, loadUserProfile, loadClassInfo } = useAuth();
   const navigate = useNavigate();
 
   function handlePhotoSelect(e) {
@@ -46,17 +46,32 @@ export default function JoinClassPage() {
     setLoading(true);
     try {
       let user;
-      if (authMode === 'signup') {
-        user = await signup(email, password, name);
-      } else {
+      try {
         const cred = await login(email, password);
         user = cred.user;
+      } catch (err) {
+        if (err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
+          if (!name) {
+            throw new Error('Please enter your Full Name to create a new account.');
+          }
+          try {
+            user = await signup(email, password, name);
+          } catch (signupErr) {
+            if (signupErr.code === 'auth/email-already-in-use') {
+              throw new Error('Incorrect password for this account.');
+            }
+            throw signupErr;
+          }
+        } else {
+          throw err;
+        }
       }
 
       if (pendingClassId) {
         const profile = await loadUserProfile(pendingClassId, user.uid);
         if (profile) {
           localStorage.setItem('yb_classId', pendingClassId);
+          await loadClassInfo(pendingClassId);
           navigate('/yearbook');
           return;
         }
@@ -78,17 +93,11 @@ export default function JoinClassPage() {
       const classData = await joinClass(secretCode);
       setPendingClassId(classData.id);
       setPendingClassName(classData.name);
-      if (!currentUser) {
-        setMode('auth');
-      } else {
-        const profile = await loadUserProfile(classData.id, currentUser.uid);
-        if (profile) {
-          localStorage.setItem('yb_classId', classData.id);
-          navigate('/yearbook');
-          return;
-        }
-        setMode('profile');
+      
+      if (currentUser) {
+        await logout();
       }
+      setMode('auth');
     } catch (err) {
       setError('Invalid class code. Please check and try again.');
     }
@@ -218,19 +227,13 @@ export default function JoinClassPage() {
 
         {mode === 'auth' && (
           <div className="join-card liquid-glass">
-            <h2 className="join-title">{authMode === 'login' ? 'Welcome Back' : 'Create Account'}</h2>
-            <p className="join-subtitle">{pendingClassName ? `Joining "${pendingClassName}"` : 'Sign in to continue'}</p>
-            <div className="join-tabs">
-              <button className={`join-tab ${authMode === 'login' ? 'active' : ''}`} onClick={() => setAuthMode('login')}>Login</button>
-              <button className={`join-tab ${authMode === 'signup' ? 'active' : ''}`} onClick={() => setAuthMode('signup')}>Sign Up</button>
-            </div>
+            <h2 className="join-title">Authentication</h2>
+            <p className="join-subtitle">Sign in or create an account</p>
             <form onSubmit={handleAuth}>
-              {authMode === 'signup' && (
-                <div className="form-group">
-                  <label className="input-label">Full Name</label>
-                  <input className="input-glass" type="text" placeholder="Your name" value={name} onChange={(e) => setName(e.target.value)} required />
-                </div>
-              )}
+              <div className="form-group">
+                <label className="input-label">Full Name</label>
+                <input className="input-glass" type="text" placeholder="Your name (required for new accounts)" value={name} onChange={(e) => setName(e.target.value)} />
+              </div>
               <div className="form-group">
                 <label className="input-label">Email</label>
                 <input className="input-glass" type="email" placeholder="your@email.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
@@ -240,7 +243,7 @@ export default function JoinClassPage() {
                 <input className="input-glass" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
               </div>
               {error && <p className="form-error">{error}</p>}
-              <button className="btn btn-primary btn-full" disabled={loading}>{loading ? 'Please wait...' : (authMode === 'login' ? 'Login' : 'Create Account')}</button>
+              <button className="btn btn-primary btn-full" disabled={loading}>{loading ? 'Please wait...' : 'Continue ->'}</button>
             </form>
           </div>
         )}
