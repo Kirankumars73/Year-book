@@ -1,5 +1,7 @@
 # Digital Yearbook 🎓
 
+Website: https://cs-2026-blue.vercel.app/
+
 A modern, interactive digital yearbook application designed to connect classmates. Students can securely join their class using a secret code, view their peers, interact in real-time, share memories, and maintain their unique profiles.
 
 ## ✨ Features
